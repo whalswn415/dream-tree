@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이노플 어른이날 꿈트리</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Gaegu','Noto Sans KR',sans-serif;overflow:hidden;height:100vh;width:100vw;background:linear-gradient(180deg,#7EC8E3 0%,#A8DCEA 20%,#C9E9F2 40%,#DFF2DC 65%,#B5D8A0 85%,#8BC47A 100%)}
+  #display-mode{width:100vw;height:100vh;position:relative;overflow:hidden}
+  .cloud{position:absolute;background:rgba(255,255,255,0.82);border-radius:50px;pointer-events:none;z-index:5}
+  .cloud::before,.cloud::after{content:'';position:absolute;background:inherit;border-radius:50%}
+  .cloud-1{width:180px;height:55px;top:6%;animation:cd 50s linear infinite}
+  .cloud-1::before{width:80px;height:75px;top:-32px;left:28px}.cloud-1::after{width:100px;height:65px;top:-28px;left:65px}
+  .cloud-2{width:130px;height:42px;top:15%;animation:cd 65s linear infinite;animation-delay:-22s}
+  .cloud-2::before{width:58px;height:58px;top:-26px;left:20px}.cloud-2::after{width:72px;height:52px;top:-23px;left:48px}
+  .cloud-3{width:150px;height:48px;top:3%;animation:cd 58s linear infinite;animation-delay:-38s}
+  .cloud-3::before{width:65px;height:65px;top:-30px;left:24px}.cloud-3::after{width:85px;height:58px;top:-25px;left:58px}
+  .cloud-4{width:110px;height:36px;top:11%;animation:cd 70s linear infinite;animation-delay:-10s}
+  .cloud-4::before{width:48px;height:48px;top:-22px;left:16px}.cloud-4::after{width:60px;height:44px;top:-20px;left:40px}
+  @keyframes cd{0%{left:-240px}100%{left:110%}}
+  .petal{position:absolute;border-radius:50% 0 50% 0;opacity:0.45;pointer-events:none;z-index:60;animation:pf linear infinite}
+  @keyframes pf{0%{transform:translateY(-20px) rotate(0deg);opacity:0}8%{opacity:0.45}92%{opacity:0.45}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  .title-area{position:absolute;top:16px;left:50%;transform:translateX(-50%);text-align:center;z-index:100;pointer-events:none}
+  .title-area h1{font-family:'Gaegu',cursive;font-size:2.6rem;font-weight:700;color:#2E5A1E;text-shadow:0 2px 12px rgba(255,255,255,0.8)}
+  .title-area .subtitle{font-family:'Gaegu',cursive;font-size:1.15rem;color:#4A7A38;margin-top:1px}
+  #dream-count{position:absolute;bottom:20px;right:26px;font-family:'Gaegu',cursive;font-size:1.3rem;color:#2E5A1E;z-index:100;pointer-events:none;background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);padding:6px 15px;border-radius:26px}
+  #dream-count span{font-size:1.9rem;font-weight:700;color:#D84315}
+  canvas#tree-canvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:10}
+  #bubble-container{position:absolute;top:0;left:0;width:100%;height:100%;z-index:50;pointer-events:none;overflow:hidden}
+  .dream-bubble{position:absolute;background:rgba(255,255,255,0.8);backdrop-filter:blur(4px);border:1.5px solid rgba(255,255,255,0.88);border-radius:14px;padding:7px 11px;font-family:'Gaegu',cursive;font-size:0.85rem;color:#2E5A1E;text-align:center;pointer-events:none;line-height:1.25;word-break:keep-all;box-shadow:0 2px 8px rgba(0,0,0,0.05);opacity:0;transform:scale(0.6);animation:bp 0.6s ease forwards;white-space:nowrap}
+  @keyframes bp{0%{opacity:0;transform:scale(0.6) translateY(10px)}70%{opacity:1;transform:scale(1.04) translateY(-2px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+  #new-dream-toast{position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(255,255,255,0.9);backdrop-filter:blur(10px);border:2px solid #A5D6A7;border-radius:16px;padding:12px 22px;font-family:'Gaegu',cursive;font-size:1.3rem;font-weight:700;color:#2E7D32;z-index:200;transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,0.07)}
+  #new-dream-toast.show{transform:translateX(-50%) translateY(0)}
+  #input-mode{display:none;width:100vw;min-height:100vh;background:linear-gradient(180deg,#E8F5E9 0%,#fff 40%,#FFF8E1 100%)}
+  .input-container{max-width:420px;margin:0 auto;padding:36px 24px 50px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+  #input-mode .tree-icon{font-size:3.2rem;margin-bottom:4px;animation:gb 3s ease-in-out infinite}
+  @keyframes gb{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  #input-mode h1{font-family:'Gaegu',cursive;font-size:1.8rem;font-weight:700;color:#33691E;margin-bottom:2px}
+  #input-mode .desc{font-family:'Gaegu',cursive;font-size:1rem;color:#558B2F;margin-bottom:24px;text-align:center;line-height:1.5}
+  #input-mode label{font-family:'Gaegu',cursive;font-size:1.1rem;font-weight:700;color:#33691E;display:block;margin-bottom:6px;width:100%}
+  #input-mode input,#input-mode textarea{width:100%;font-family:'Gaegu',cursive;font-size:1.1rem;border:2px solid #C8E6C9;border-radius:14px;padding:13px 15px;background:#fff;color:#33691E;outline:none;transition:border-color 0.3s,box-shadow 0.3s;margin-bottom:16px}
+  #input-mode input:focus,#input-mode textarea:focus{border-color:#66BB6A;box-shadow:0 0 0 3px rgba(102,187,106,0.2)}
+  #input-mode textarea{height:105px;resize:none;line-height:1.6}
+  .char-count{font-family:'Gaegu',cursive;font-size:0.85rem;color:#999;text-align:right;margin-top:-12px;margin-bottom:12px;width:100%}
+  .submit-btn{width:100%;padding:15px;font-family:'Gaegu',cursive;font-size:1.35rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#66BB6A 0%,#43A047 100%);border:none;border-radius:14px;cursor:pointer;box-shadow:0 4px 15px rgba(67,160,71,0.3);margin-top:4px}
+  .submit-btn:hover{transform:translateY(-2px)}.submit-btn:disabled{background:#ccc;box-shadow:none;cursor:not-allowed}
+  #success-screen{display:none;text-align:center;padding-top:45px}
+  #success-screen .check-icon{font-size:4.2rem;animation:pi 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+  @keyframes pi{0%{transform:scale(0)}100%{transform:scale(1)}}
+  #success-screen h2{font-family:'Gaegu',cursive;font-size:1.6rem;color:#33691E;margin:12px 0 6px}
+  #success-screen p{font-family:'Gaegu',cursive;font-size:1.05rem;color:#558B2F;line-height:1.5}
+  .another-btn{margin-top:22px;padding:11px 28px;font-family:'Gaegu',cursive;font-size:1.1rem;font-weight:700;color:#43A047;background:transparent;border:2px solid #43A047;border-radius:14px;cursor:pointer}
+  .another-btn:hover{background:#43A047;color:#fff}
+  #setup-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center}
+  #setup-overlay.hidden{display:none}
+  .setup-box{background:#fff;border-radius:20px;padding:30px;max-width:440px;width:90%}
+  .setup-box h2{font-family:'Gaegu',cursive;font-size:1.6rem;color:#33691E;margin-bottom:16px;text-align:center}
+  .setup-box p{font-family:'Noto Sans KR',sans-serif;font-size:0.88rem;color:#555;line-height:1.7;margin-bottom:12px;text-align:center}
+  .setup-box input[type="text"]{width:100%;padding:12px 14px;border:2px solid #C8E6C9;border-radius:12px;font-family:'Noto Sans KR';font-size:0.9rem;margin:8px 0 16px;outline:none}
+  .setup-box input[type="text"]:focus{border-color:#66BB6A}
+  .s-btn{width:100%;padding:13px;font-family:'Gaegu',cursive;font-size:1.15rem;font-weight:700;color:#fff;background:#43A047;border:none;border-radius:12px;cursor:pointer;margin-bottom:8px}
+  .d-btn{width:100%;padding:13px;font-family:'Gaegu',cursive;font-size:1.15rem;font-weight:700;color:#558B2F;background:transparent;border:2px solid #C8E6C9;border-radius:12px;cursor:pointer}
+  .mode-switch{position:fixed;top:10px;right:10px;z-index:300;font-family:'Gaegu',cursive;font-size:0.85rem;color:#558B2F;cursor:pointer;background:rgba(255,255,255,0.6);backdrop-filter:blur(6px);padding:5px 13px;border-radius:18px;border:1px solid rgba(102,187,106,0.3)}
+</style>
+</head>
+<body>
+
+<div id="setup-overlay">
+  <div class="setup-box">
+    <h2>🌳 꿈트리 연결하기</h2>
+    <p>Apps Script 웹앱 URL을 입력해주세요</p>
+    <input type="text" id="apps-script-url" placeholder="https://script.google.com/macros/s/.../exec">
+    <button class="s-btn" onclick="startWithURL()">🚀 시작하기</button>
+    <button class="d-btn" onclick="startDemo()">🎮 데모 모드로 체험하기</button>
+  </div>
+</div>
+
+<div id="display-mode">
+  <div class="title-area"><h1>🌳 이노플 어른이날 꿈트리</h1><div class="subtitle">당신의 꿈을 심어주세요</div></div>
+  <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div><div class="cloud cloud-4"></div>
+  <canvas id="tree-canvas"></canvas>
+  <div id="bubble-container"></div>
+  <div id="dream-count">심어진 꿈 <span id="count-num">0</span>개</div>
+  <div class="mode-switch" onclick="toggleMode()">📱 입력모드</div>
+</div>
+
+<div id="input-mode">
+  <div class="input-container">
+    <div id="input-form">
+      <div class="tree-icon">🌱</div><h1>이노플 꿈트리</h1>
+      <p class="desc">당신의 꿈을 꿈트리에 심어주세요!<br>꿈트리가 점점 풍성하게 자랍니다 🌳</p>
+      <label for="name-input">이름</label><input type="text" id="name-input" placeholder="이름을 입력해주세요" maxlength="20">
+      <label for="dream-input">나의 꿈 ✨</label><textarea id="dream-input" placeholder="어떤 꿈이든 좋아요!" maxlength="80" oninput="updateCharCount()"></textarea>
+      <div class="char-count"><span id="cc">0</span>/80</div>
+      <button class="submit-btn" id="submit-btn" onclick="submitDream()">🌱 꿈 심기</button>
+    </div>
+    <div id="success-screen"><div class="check-icon">🌸</div><h2>꿈이 심어졌어요!</h2><p>꿈트리 모니터에서 확인하세요 💫</p><button class="another-btn" onclick="resetForm()">🌱 한 번 더</button></div>
+  </div>
+</div>
+<div id="new-dream-toast">🌸 새로운 꿈이 피어났어요!</div>
+
+<script>
+let APPS_SCRIPT_URL='',DEMO_MODE=false,demoDreams=[],currentDreams=[],displayedDreamCount=0;
+const POLL=3000;
+const COLORS=['#F48FB1','#FF8A65','#FFD54F','#CE93D8','#81D4FA','#80CBC4','#FFAB91','#A5D6A7','#EF9A9A','#FFF59D','#B39DDB','#90CAF9','#FFCC80','#C5E1A5','#F8BBD0','#B2EBF2'];
+
+function createPetals(){const c=document.getElementById('display-mode');const cols=['#F48FB1','#FFCC80','#FFF59D','#CE93D8','#FF8A65','#C5E1A5','#81D4FA'];for(let i=0;i<16;i++){const p=document.createElement('div');p.className='petal';p.style.left=8+Math.random()*84+'%';p.style.background=cols[i%cols.length];p.style.animationDuration=(10+Math.random()*12)+'s';p.style.animationDelay=Math.random()*15+'s';const sz=7+Math.random()*7;p.style.width=sz+'px';p.style.height=sz+'px';c.appendChild(p);}}
+
+let slotPositions=[];
+function computeSlots(){const W=window.innerWidth,H=window.innerHeight;slotPositions=[];const tL=W*0.28,tR=W*0.72,lX=6,rX=tR+6,topY=H*0.06,botY=H*0.86,bW=135,bH=34;const lW=tL-12,rW=W-tR-12;const lC=Math.max(1,Math.floor(lW/bW)),rC=Math.max(1,Math.floor(rW/bW)),rows=Math.floor((botY-topY)/bH);let L=[],R=[];for(let c=0;c<lC;c++)for(let r=0;r<rows;r++)L.push({x:lX+c*bW+(r%2)*6,y:topY+r*bH});for(let c=0;c<rC;c++)for(let r=0;r<rows;r++)R.push({x:rX+c*bW+(r%2)*6,y:topY+r*bH});let li=0,ri=0;for(let i=0;li<L.length||ri<R.length;i++){if(i%2===0&&li<L.length)slotPositions.push(L[li++]);else if(ri<R.length)slotPositions.push(R[ri++]);else if(li<L.length)slotPositions.push(L[li++]);}}
+function addBubble(txt,idx,anim){const W=window.innerWidth,H=window.innerHeight,c=document.getElementById('bubble-container');let x,y;if(idx<slotPositions.length){x=slotPositions[idx].x;y=slotPositions[idx].y;}else{const o=idx-slotPositions.length;x=W*0.15+(o%6)*(W*0.12)+Math.random()*30;y=H*0.05+Math.floor(o/6)*36+Math.random()*10;x=Math.max(4,Math.min(W-140,x));y=Math.max(H*0.03,Math.min(H*0.85,y));}const el=document.createElement('div');el.className='dream-bubble';el.style.left=x+'px';el.style.top=y+'px';el.textContent=txt;const col=COLORS[idx%COLORS.length];el.style.borderColor=col+'80';el.style.boxShadow='0 2px 8px '+col+'18';if(!anim){el.style.animation='none';el.style.opacity='1';el.style.transform='scale(1)';}else el.style.animationDelay=(Math.random()*0.3)+'s';c.appendChild(el);}
+function rebuildAllBubbles(){computeSlots();document.getElementById('bubble-container').innerHTML='';currentDreams.forEach(function(d,i){addBubble(d.dream,i,false);});}
+
+function startWithURL(){var u=document.getElementById('apps-script-url').value.trim();if(!u)return alert('URL을 입력해주세요!');APPS_SCRIPT_URL=u;DEMO_MODE=false;document.getElementById('setup-overlay').classList.add('hidden');init();}
+function startDemo(){DEMO_MODE=true;demoDreams=[{dream:'세계일주 🌍'},{dream:'앱 출시'},{dream:'매일 운동 💪'}];document.getElementById('setup-overlay').classList.add('hidden');init();setTimeout(demoAutoAdd,1500);}
+var canvas,ctx;
+function init(){checkURLMode();canvas=document.getElementById('tree-canvas');ctx=canvas.getContext('2d');resizeCanvas();computeSlots();window.addEventListener('resize',function(){resizeCanvas();rebuildAllBubbles();});createPetals();fetchDreams();setInterval(fetchDreams,POLL);renderLoop();}
+function toggleMode(){var d=document.getElementById('display-mode'),i=document.getElementById('input-mode');if(i.style.display==='block'){i.style.display='none';d.style.display='block';}else{i.style.display='block';d.style.display='none';}}
+function checkURLMode(){if(new URLSearchParams(location.search).get('mode')==='input'){document.getElementById('display-mode').style.display='none';document.getElementById('input-mode').style.display='block';}}
+function updateCharCount(){document.getElementById('cc').textContent=document.getElementById('dream-input').value.length;}
+function submitDream(){var ne=document.getElementById('name-input'),de=document.getElementById('dream-input'),btn=document.getElementById('submit-btn');var n=ne.value.trim(),d=de.value.trim();if(!n){ne.focus();return;}if(!d){de.focus();return;}btn.disabled=true;btn.textContent='심는 중...';if(DEMO_MODE){demoDreams.push({dream:d});setTimeout(function(){document.getElementById('input-form').style.display='none';document.getElementById('success-screen').style.display='block';btn.disabled=false;btn.textContent='🌱 꿈 심기';},400);}else{fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,dream:d})}).then(function(){document.getElementById('input-form').style.display='none';document.getElementById('success-screen').style.display='block';}).catch(function(){alert('전송 실패!');}).finally(function(){btn.disabled=false;btn.textContent='🌱 꿈 심기';});}}
+function resetForm(){document.getElementById('name-input').value='';document.getElementById('dream-input').value='';document.getElementById('cc').textContent='0';document.getElementById('input-form').style.display='block';document.getElementById('success-screen').style.display='none';}
+function fetchDreams(){if(DEMO_MODE){processDreams([].concat(demoDreams));}else{fetch(APPS_SCRIPT_URL).then(function(r){return r.json();}).then(processDreams).catch(function(){});}}
+function processDreams(dreams){if(dreams.length>currentDreams.length){var wasEmpty=currentDreams.length===0;var nc=dreams.length-currentDreams.length;var oldLen=currentDreams.length;currentDreams=dreams;displayedDreamCount=dreams.length;document.getElementById('count-num').textContent=displayedDreamCount;for(var i=oldLen;i<dreams.length;i++)addBubble(dreams[i].dream,i,!wasEmpty);if(!wasEmpty&&nc>0){var t=document.getElementById('new-dream-toast');t.textContent=nc>1?'🌸 새 꿈 '+nc+'개!':'🌸 새 꿈!';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}}}
+
+var time=0;
+function resizeCanvas(){if(!canvas)return;canvas.width=innerWidth;canvas.height=innerHeight;}
+function renderLoop(){time+=0.007;drawTree();requestAnimationFrame(renderLoop);}
+function gr(c,b,p,m){if(c<=120)return b+(p-b)*(1-Math.pow(1-c/120,1.8));return p+(m-p)*(1-Math.exp(-(c-120)/200));}
+
+function drawTree(){
+  var W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  var count=displayedDreamCount;
+  var sway=Math.sin(time*0.35)*2;
+  var trunkX=W/2,trunkBot=H*0.88;
+  var trunkTop=H*(0.38-gr(count,0,0.12,0.14));
+  var crownW=gr(count,W*0.13,W*0.22,W*0.24);
+  var crownH=gr(count,(trunkBot-trunkTop)*0.42,(trunkBot-trunkTop)*0.58,(trunkBot-trunkTop)*0.62);
+  var crownCX=trunkX+sway;
+  var crownCY=trunkTop+crownH*0.38;
+
+  var gg=ctx.createRadialGradient(W/2,H*0.95,H*0.02,W/2,H*0.95,H*0.38);
+  gg.addColorStop(0,'#5CB85C');gg.addColorStop(0.4,'#4AAF4A');gg.addColorStop(1,'transparent');
+  ctx.fillStyle=gg;ctx.beginPath();ctx.ellipse(W/2,H*0.93,W*0.5,H*0.1,0,0,Math.PI*2);ctx.fill();
+  var gf=Math.min(Math.floor(count*0.3),40);
+  for(var i=0;i<gf;i++){ctx.fillStyle=COLORS[i%COLORS.length]+'90';var fx=W*0.12+(i/Math.max(gf,1))*W*0.76+Math.sin(i*2.3)*10;var fy=H*0.87+Math.sin(i*1.5)*H*0.018;ctx.beginPath();ctx.arc(fx,fy,2.5,0,Math.PI*2);ctx.fill();}
+
+  ctx.save();
+  var tg=ctx.createLinearGradient(trunkX-30,0,trunkX+30,0);
+  tg.addColorStop(0,'#6D4C41');tg.addColorStop(0.3,'#8D6E63');tg.addColorStop(0.7,'#795548');tg.addColorStop(1,'#5D4037');
+  ctx.fillStyle=tg;ctx.strokeStyle='#4E342E';ctx.lineWidth=1.5;
+  var tw=gr(count,24,32,34);
+  ctx.beginPath();
+  ctx.moveTo(trunkX-tw,trunkBot);
+  ctx.bezierCurveTo(trunkX-tw+4,trunkBot-H*0.18,trunkX-16+sway*0.3,trunkBot-H*0.38,trunkX-9+sway,trunkTop);
+  ctx.lineTo(trunkX+9+sway,trunkTop);
+  ctx.bezierCurveTo(trunkX+16+sway*0.3,trunkBot-H*0.38,trunkX+tw-4,trunkBot-H*0.18,trunkX+tw,trunkBot);
+  ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.strokeStyle='rgba(62,39,35,0.12)';ctx.lineWidth=1;
+  for(var i=0;i<9;i++){var ty=trunkBot-(trunkBot-trunkTop)*(i/9)*0.88,tx=trunkX+sway*(i/9)*0.5;ctx.beginPath();ctx.moveTo(tx-7+Math.sin(i)*3,ty);ctx.quadraticCurveTo(tx,ty-7,tx+7+Math.cos(i)*3,ty+2);ctx.stroke();}
+
+  var branchCount=Math.round(gr(count,6,16,18));
+  for(var i=0;i<branchCount;i++){
+    var t=0.1+(i/branchCount)*0.8;
+    var bx=trunkX+sway*t,by=trunkBot-(trunkBot-trunkTop)*t;
+    var dir=i%2===0?1:-1;
+    var len=gr(count,50,130,145)+Math.sin(i*2.3)*18;
+    ctx.lineWidth=Math.max(1.5,5-t*2.8);ctx.strokeStyle='#5D4037';
+    ctx.beginPath();ctx.moveTo(bx,by);ctx.quadraticCurveTo(bx+dir*len*0.4,by-24-i*1.5,bx+dir*len+sway*1.1,by-12-Math.sin(i*1.1)*22);ctx.stroke();
+  }
+
+  var greens=['#1B5E20','#2E7D32','#388E3C','#43A047','#4CAF50','#66BB6A','#81C784','#A5D6A7'];
+  var layers=count<50?3:4;
+  for(var layer=0;layer<layers;layer++){
+    var cc2=6+layer*4+Math.round(gr(count,2,8,10));
+    for(var i=0;i<cc2;i++){
+      var a=(i/cc2)*Math.PI*2+layer*0.55+time*0.04;
+      var d=crownW*(0.08+layer*0.22)+Math.sin(time*0.5+i*1.4)*3.5;
+      var cx=crownCX+Math.cos(a)*d*1.0;
+      var cy=crownCY+Math.sin(a)*(crownH/crownW)*d-layer*4;
+      var r=gr(count,32,55,60)+Math.sin(time*0.4+i*1.1)*5;
+      ctx.globalAlpha=0.32+layer*0.08;
+      ctx.fillStyle=greens[(i+layer)%greens.length];
+      ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+    }
+  }
+  var fillN=Math.round(gr(count,12,35,42));
+  for(var i=0;i<fillN;i++){
+    var seed1=(i*137.508)%360;
+    var seed2=((i*97.31+13)*7)%100;
+    var angle=seed1*(Math.PI/180);
+    var rFrac=Math.sqrt(seed2/100)*0.88;
+    var cx=crownCX+Math.cos(angle)*crownW*rFrac+Math.sin(time*0.3+i*0.7)*2;
+    var cy=crownCY+Math.sin(angle)*crownH*rFrac+Math.cos(time*0.4+i*0.5)*2;
+    var r=gr(count,28,50,55)+Math.sin(i*1.3)*8;
+    ctx.globalAlpha=0.25+Math.sin(i*0.8)*0.1;
+    ctx.fillStyle=greens[i%greens.length];
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+  }
+  var edgeN=Math.round(gr(count,10,22,26));
+  for(var i=0;i<edgeN;i++){
+    var a=(i/edgeN)*Math.PI*2;
+    var cx=crownCX+Math.cos(a)*crownW*0.82+Math.sin(time*0.2+i)*3;
+    var cy=crownCY+Math.sin(a)*crownH*0.82+Math.cos(time*0.3+i)*3;
+    var r=gr(count,30,52,58)+Math.sin(i*2.1)*6;
+    ctx.globalAlpha=0.3;
+    ctx.fillStyle=greens[(i*2)%greens.length];
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  for(var i=0;i<10;i++){var a=(i/10)*Math.PI*2+time*0.08;ctx.fillStyle='rgba(255,255,230,0.06)';ctx.beginPath();ctx.arc(crownCX+Math.cos(a)*crownW*0.4,crownCY+Math.sin(a)*crownH*0.35,16+Math.sin(time+i)*4,0,Math.PI*2);ctx.fill();}
+
+  var bloomScale=count<=150?1:150/count;
+  for(var i=0;i<count;i++){
+    var a=(i*137.508)*(Math.PI/180);
+    var rFrac=0.1+0.82*Math.sqrt((i%80)/80);
+    var ring=Math.floor(i/80);
+    var cx=crownCX+Math.cos(a+ring*0.5)*crownW*rFrac;
+    var cy=crownCY+Math.sin(a+ring*0.5)*crownH*rFrac;
+    var color=COLORS[i%COLORS.length];
+    var pulse=1+Math.sin(time*1.3+i*0.4)*0.1;
+    var bR=(5.5+Math.sin(i*0.6)*2)*pulse*bloomScale;
+    ctx.fillStyle=color;ctx.globalAlpha=0.9;
+    for(var p=0;p<5;p++){var pa=(p/5)*Math.PI*2+time*0.12+i*0.25;ctx.beginPath();ctx.arc(cx+Math.cos(pa)*bR*0.52,cy+Math.sin(pa)*bR*0.52,bR*0.44,0,Math.PI*2);ctx.fill();}
+    ctx.fillStyle='#FFFDE7';ctx.globalAlpha=0.95;ctx.beginPath();ctx.arc(cx,cy,bR*0.28,0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  if(count>=15){
+    var fc=Math.min(Math.floor((count-15)/4),20);
+    for(var i=0;i<fc;i++){
+      var t2=(i+0.5)/fc;
+      var a=Math.PI*0.15+t2*Math.PI*0.7;
+      var fx=crownCX+Math.cos(a)*crownW*0.88;
+      var fy=crownCY+Math.sin(a)*crownH*0.88+6;
+      ctx.strokeStyle='#6D4C41';ctx.lineWidth=1.2;ctx.globalAlpha=0.8;
+      ctx.beginPath();ctx.moveTo(fx,fy-6);ctx.lineTo(fx+Math.sin(time+i)*2,fy+6);ctx.stroke();
+      var fcc=COLORS[(i*3+2)%COLORS.length];
+      ctx.fillStyle=fcc;ctx.globalAlpha=0.88;
+      ctx.beginPath();ctx.arc(fx+Math.sin(time+i)*2,fy+6,7.5+Math.sin(time*0.8+i)*1.5,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=0.2;ctx.beginPath();ctx.arc(fx,fy+6,14,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;
+    }
+  }
+
+  ctx.strokeStyle='#5D4037';ctx.lineWidth=2.5;
+  for(var i=0;i<5;i++){var d=(i-2)*0.45;ctx.beginPath();ctx.moveTo(trunkX+d*16,trunkBot);ctx.quadraticCurveTo(trunkX+d*48,trunkBot+12,trunkX+d*68,trunkBot+5+Math.sin(i)*4);ctx.stroke();}
+  ctx.restore();
+}
+
+function demoAutoAdd(){
+  var ex=['올해 책 30권 📚','가족 유럽여행 ✈️','새 언어 배우기','매일 운동 💪','카페 열기 ☕','크루아상 마스터 🥐','부모님과 여행','1등 하기 🏆','새벽 기상 🌅','영어 유창하게','우쿨렐레 🎵','블로그 시작','마라톤 완주 🏃','감사일기 쓰기','요리 업그레이드 🍳','명상 습관','사이드 프로젝트','제주 한달살기 🏝️','매일 코딩','좋은 리더 되기','건강검진 꼬박','등산 ⛰️','TOEIC 900점','새 취미 찾기','퇴근 후 공부','해외 컨퍼런스','디자인 공부 🎨','재테크 시작','매일 일기 ✍️','봉사활동','드로잉 배우기','유튜버 도전','건강한 식단','감사 3가지','새 언어 도전','식물 키우기 🌿','풀업 10개','스페인어','AI 자격증','수영 🏊','피아노 🎹','글쓰기 습관','버킷리스트 여행','새벽 루틴','소통 잘하기','연봉 2배','미술관 투어','바리스타 자격증','플랭크 챌린지','매주 새 요리','일본어 시험','캘리그라피','자전거 여행 🚴','내 집 마련 🏠','건강한 수면','테니스 🎾','사진 포트폴리오','기타 마스터','서핑 🏄','셀프 인테리어','명상 챌린지','요가 자격증','논문 쓰기','앨범 내기','만보 걷기','영화 100편 🎬','사진작가','해외 마라톤','프리랜서','캠핑카 🚐','소믈리에','스쿠버 🤿','베이킹 수료','코딩 봉사','반려동물 🐶','제빵 기능사','AI 런칭','텃밭 가꾸기','전시회 개최','뮤지컬 도전','레시피 북','영어일기','외국인 친구','무결근','새 도시','내 강의','다큐 제작','콘서트 🎵'];
+  var i=0;setInterval(function(){if(i<ex.length)demoDreams.push({dream:ex[i++]});},1800);
+}
+</script>
+</body>
+</html>
