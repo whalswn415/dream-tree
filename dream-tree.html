@@ -102,7 +102,7 @@
 <div id="new-dream-toast">🌸 새로운 꿈이 피어났어요!</div>
 
 <script>
-let APPS_SCRIPT_URL='',DEMO_MODE=false,demoDreams=[],currentDreams=[],displayedDreamCount=0;
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxwG9cC0cPALSjU3hTlReK-Ymxd86QWeVVYOMZ9UtPP92j3N5PtwBHoKPTFkRTOVPES/exec',DEMO_MODE=false,demoDreams=[],currentDreams=[],displayedDreamCount=0;
 const POLL=3000;
 const COLORS=['#F48FB1','#FF8A65','#FFD54F','#CE93D8','#81D4FA','#80CBC4','#FFAB91','#A5D6A7','#EF9A9A','#FFF59D','#B39DDB','#90CAF9','#FFCC80','#C5E1A5','#F8BBD0','#B2EBF2'];
 
@@ -113,10 +113,16 @@ function computeSlots(){const W=window.innerWidth,H=window.innerHeight;slotPosit
 function addBubble(txt,idx,anim){const W=window.innerWidth,H=window.innerHeight,c=document.getElementById('bubble-container');let x,y;if(idx<slotPositions.length){x=slotPositions[idx].x;y=slotPositions[idx].y;}else{const o=idx-slotPositions.length;x=W*0.15+(o%6)*(W*0.12)+Math.random()*30;y=H*0.05+Math.floor(o/6)*36+Math.random()*10;x=Math.max(4,Math.min(W-140,x));y=Math.max(H*0.03,Math.min(H*0.85,y));}const el=document.createElement('div');el.className='dream-bubble';el.style.left=x+'px';el.style.top=y+'px';el.textContent=txt;const col=COLORS[idx%COLORS.length];el.style.borderColor=col+'80';el.style.boxShadow='0 2px 8px '+col+'18';if(!anim){el.style.animation='none';el.style.opacity='1';el.style.transform='scale(1)';}else el.style.animationDelay=(Math.random()*0.3)+'s';c.appendChild(el);}
 function rebuildAllBubbles(){computeSlots();document.getElementById('bubble-container').innerHTML='';currentDreams.forEach(function(d,i){addBubble(d.dream,i,false);});}
 
-function startWithURL(){var u=document.getElementById('apps-script-url').value.trim();if(!u)return alert('URL을 입력해주세요!');APPS_SCRIPT_URL=u;DEMO_MODE=false;document.getElementById('setup-overlay').classList.add('hidden');init();}
+function startWithURL(){document.getElementById('setup-overlay').classList.add('hidden');init();}
 function startDemo(){DEMO_MODE=true;demoDreams=[{dream:'세계일주 🌍'},{dream:'앱 출시'},{dream:'매일 운동 💪'}];document.getElementById('setup-overlay').classList.add('hidden');init();setTimeout(demoAutoAdd,1500);}
 var canvas,ctx;
 function init(){checkURLMode();canvas=document.getElementById('tree-canvas');ctx=canvas.getContext('2d');resizeCanvas();computeSlots();window.addEventListener('resize',function(){resizeCanvas();rebuildAllBubbles();});createPetals();fetchDreams();setInterval(fetchDreams,POLL);renderLoop();}
+
+// Auto-start on page load
+window.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('setup-overlay').classList.add('hidden');
+  init();
+});
 function toggleMode(){var d=document.getElementById('display-mode'),i=document.getElementById('input-mode');if(i.style.display==='block'){i.style.display='none';d.style.display='block';}else{i.style.display='block';d.style.display='none';}}
 function checkURLMode(){if(new URLSearchParams(location.search).get('mode')==='input'){document.getElementById('display-mode').style.display='none';document.getElementById('input-mode').style.display='block';}}
 function updateCharCount(){document.getElementById('cc').textContent=document.getElementById('dream-input').value.length;}
